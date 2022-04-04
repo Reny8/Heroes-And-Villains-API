@@ -4,13 +4,47 @@ from .serializers import SuperSerializer
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from super_types.models import Super_Type
 
 @api_view(['GET','POST'])
 def supers_list(request):
     if request.method == 'GET':
-        super = Super.objects.all()
-        serializer = SuperSerializer(super,many = True)
-        return Response(serializer.data, status.HTTP_200_OK)
+        custom_response_dictionary = {}
+        type_param = request.query_params.get('type')
+        supers = Super.objects.all()
+
+        if type_param:
+            supers = supers.filter(super_type__type = type_param)
+            serializer = SuperSerializer(supers,many = True)
+            return Response(serializer.data)
+        else:
+            super_types = Super_Type.objects.all()
+            for type in super_types:
+                supers = Super.objects.filter(super_type_id = type.id)
+                serializer = SuperSerializer(supers, many = True)
+
+                custom_response_dictionary[type.type] = {
+                    "Supers": serializer.data
+                }
+            return Response(custom_response_dictionary)
+
+
+
+
+
+        # super_types = Super_Type.objects.all()
+        # for type in super_types:
+        #     custom_response_dictionary = {}
+        #     all_supers = Super.objects.filter(super_type_id = type.id)
+        #     serializer = SuperSerializer(all_supers,many = True)
+                
+        #     custom_response_dictionary[type.type] = {
+        #         "Supers": serializer.data
+        #     }
+        # return Response(custom_response_dictionary, status.HTTP_200_OK)
+            
+            
+
     elif request.method == 'POST':
         serializer = SuperSerializer(data = request.data)
         if serializer.is_valid(raise_exception = True):
@@ -31,3 +65,6 @@ def super_detail(request,pk):
     if request.method == 'DELETE':
         super.delete()
         return Response(status = status.HTTP_204_NO_CONTENT)
+
+    
+
