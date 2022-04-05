@@ -22,34 +22,15 @@ def supers_list(request):
             for type in super_types:
                 supers = Super.objects.filter(super_type_id = type.id)
                 serializer = SuperSerializer(supers, many = True)
-
-                custom_response_dictionary[type.type] = {
-                    "Supers": serializer.data
-                }
+                custom_response_dictionary[type.type] = serializer.data
             return Response(custom_response_dictionary)
-
-
-
-
-
-        # super_types = Super_Type.objects.all()
-        # for type in super_types:
-        #     custom_response_dictionary = {}
-        #     all_supers = Super.objects.filter(super_type_id = type.id)
-        #     serializer = SuperSerializer(all_supers,many = True)
-                
-        #     custom_response_dictionary[type.type] = {
-        #         "Supers": serializer.data
-        #     }
-        # return Response(custom_response_dictionary, status.HTTP_200_OK)
-            
-            
 
     elif request.method == 'POST':
         serializer = SuperSerializer(data = request.data)
         if serializer.is_valid(raise_exception = True):
             serializer.save()
             return Response(serializer.data, status.HTTP_201_CREATED)
+
 
 @api_view(['GET','PUT','DELETE'])
 def super_detail(request,pk):
