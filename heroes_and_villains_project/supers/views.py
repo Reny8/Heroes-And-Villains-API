@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view
-from .models import Super
-from .serializers import SuperSerializer
+from .models import Super, Power
+from .serializers import PowerSerializer, SuperSerializer
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -33,7 +33,7 @@ def supers_list(request):
             return Response(serializer.data, status.HTTP_201_CREATED)
 
 
-@api_view(['GET','PUT','DELETE'])
+@api_view(['GET','PUT','DELETE','PATCH'])
 def super_detail(request,pk):
     super = get_object_or_404(Super, pk = pk)
     if request.method == 'GET':
@@ -47,6 +47,9 @@ def super_detail(request,pk):
     if request.method == 'DELETE':
         super.delete()
         return Response(status = status.HTTP_204_NO_CONTENT)
-
-    
+    if request.method == 'PATCH':
+        serializer = SuperSerializer(super, data = request.data, partial = True)
+        if serializer.is_valid(raise_exception = True):
+            serializer.save()
+            return Response(serializer.data, status.HTTP_202_ACCEPTED)
 
