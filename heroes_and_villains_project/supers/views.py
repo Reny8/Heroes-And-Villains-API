@@ -23,6 +23,7 @@ def supers_list(request):
                 supers = Super.objects.filter(super_type_id = type.id)
                 serializer = SuperSerializer(supers, many = True)
                 custom_response_dictionary[type.type] = serializer.data
+
             return Response(custom_response_dictionary)
 
     elif request.method == 'POST':
