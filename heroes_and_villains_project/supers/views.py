@@ -1,3 +1,5 @@
+from functools import partial
+from http import server
 from rest_framework.decorators import api_view
 from .models import Super, Power
 from .serializers import PowerSerializer, SuperSerializer
@@ -33,7 +35,7 @@ def supers_list(request):
             return Response(serializer.data, status.HTTP_201_CREATED)
 
 
-@api_view(['GET','PUT','DELETE','PATCH'])
+@api_view(['GET','PUT','DELETE'])
 def super_detail(request,pk):
     super = get_object_or_404(Super, pk = pk)
     if request.method == 'GET':
@@ -47,9 +49,17 @@ def super_detail(request,pk):
     if request.method == 'DELETE':
         super.delete()
         return Response(status = status.HTTP_204_NO_CONTENT)
-    if request.method == 'PATCH':
-        serializer = SuperSerializer(super, data = request.data, partial = True)
-        if serializer.is_valid(raise_exception = True):
-            serializer.save()
-            return Response(serializer.data, status.HTTP_202_ACCEPTED)
+   
+   
+@api_view(['PATCH'])
+def add_power(request,pk,id):
+    super = get_object_or_404(Super, pk = pk)
+    power = get_object_or_404(Power, id = id)
+    update_super = super.powers.add(power)
+    serializer = SuperSerializer(update_super, data = request.data, partial = True)
+
+    if serializer.is_valid(raise_exception = True):
+        serializer.save()
+        return Response(serializer.data, status = status.HTTP_202_ACCEPTED)
+        
 
