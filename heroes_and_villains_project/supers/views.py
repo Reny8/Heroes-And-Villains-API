@@ -56,10 +56,8 @@ def add_power(request,pk,id):
     super = get_object_or_404(Super, pk = pk)
     power = get_object_or_404(Power, id = id)
     update_super = super.powers.add(power)
-    serializer = SuperSerializer(update_super, data = request.data, partial = True)
+    serializer = SuperSerializer(update_super)
 
-    if serializer.is_valid(raise_exception = True):
-        serializer.save()
-        return Response(serializer.data, status = status.HTTP_202_ACCEPTED)
+    return Response(serializer.data, status = status.HTTP_202_ACCEPTED)
         
 
